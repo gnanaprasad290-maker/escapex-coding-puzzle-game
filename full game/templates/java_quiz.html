@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EscapeX – Java Programming Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+ font-family:system-ui;
+ background:#8C5A3C;
+ color:#fff;
+ user-select:none;
+}
+header{
+ background:#020617;
+ padding:16px;
+ text-align:center;
+}
+.container{
+ max-width:1100px;
+ margin:auto;
+ padding:20px;
+}
+.card{
+ background:#020617;
+ padding:24px;
+ border-radius:16px;
+ box-shadow:0 0 30px rgba(0,0,0,.6);
+}
+textarea{
+ width:100%;
+ min-height:260px;
+ background:#020617;
+ color:#00ff88;
+ padding:16px;
+ border-radius:10px;
+ font-family:monospace;
+ border:1px solid #1e293b;
+}
+button{
+ padding:12px 16px;
+ border:none;
+ border-radius:10px;
+ font-weight:700;
+ margin:4px;
+ cursor:pointer;
+}
+.primary{background:#2563eb;color:#fff;}
+.secondary{background:#475569;color:#fff;}
+.success{background:#059669;color:#fff;}
+.warning{background:#f59e0b;color:#000;}
+.locked{background:#6b7280;color:#000;cursor:not-allowed;}
+.center{text-align:center;}
+.box{
+ display:none;
+ background:#000;
+ color:#00ff88;
+ padding:16px;
+ margin-top:12px;
+ border-radius:10px;
+ white-space:pre-wrap;
+}
+.show{display:block;}
+.topbar{
+ display:flex;
+ justify-content:space-between;
+ margin-bottom:12px;
+ font-weight:700;
+}
+.boss{color:#dc2626;font-weight:900;}
+.levelBtn{
+ width:60px;
+ height:60px;
+ margin:6px;
+ border-radius:14px;
+ font-size:18px;
+}
+.open{background:#2563eb;color:#fff;}
+</style>
+</head>
+
+<body oncontextmenu="return false">
+
+<header>
+<h2>🎮 EscapeX – Java Programming Game</h2>
+<p>⭐ Star Unlock | 🤖 Hint −5 | 👁 Answer = 0 | ⏱ Timer Mode</p>
+</header>
+
+<div class="container">
+<div class="card">
+
+<!-- LEVEL SELECT -->
+<div id="levelSelector" class="center">
+<h3>Select Level</h3>
+<p>⭐ Stars: <b><span id="starCount">0</span></b></p><br>
+<div id="levels"></div>
+</div>
+
+<!-- GAME UI -->
+<div id="gameUI" style="display:none;">
+<div class="topbar">
+<div>
+ Level <span id="level">1</span>/10 <span id="bossTag"></span>
+</div>
+<div>
+ ⏱ <span id="time">300</span>s | ⭐ <span id="score">0</span>
+</div>
+</div>
+
+<h3 id="question"></h3>
+
+<textarea id="code" placeholder="class Main {
+ public static void main(String[] args) {
+
+ }
+}"></textarea><br>
+
+<button class="secondary" id="prev">⬅ Previous</button>
+<button class="success" id="run">Run</button>
+<button class="primary" id="submit">Submit</button>
+<button class="primary" id="next" disabled>Next ▶</button>
+<button class="warning" id="skip">⏭ Skip</button>
+<button class="secondary" id="hint">🤖 Hint</button>
+<button class="secondary" id="show">👁 Show Answer</button>
+
+<div id="feedback"></div>
+<div class="box" id="outputBox"></div>
+<div class="box" id="hintBox"></div>
+<div class="box" id="answerBox"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+/* ================= JAVA GAME DATA ================= */
+
+const STAR_REQ={1:0,2:10,3:20,4:30,5:40,6:50,7:60,8:70,9:80,10:80};
+
+const QUESTIONS=[
+{q:"Print Hello World",h:"Use System.out.println()",o:"Hello World",
+a:`class Main{
+ public static void main(String[] args){
+  System.out.println("Hello World");
+ }
+}`},
+
+{q:"Print numbers 1 to 5",h:"Use for loop",o:"1 2 3 4 5",
+a:`class Main{
+ public static void main(String[] args){
+  for(int i=1;i<=5;i++)
+   System.out.print(i+" ");
+ }
+}`},
+
+{q:"Sum of 2 and 3",h:"Use + operator",o:"5",
+a:`class Main{
+ public static void main(String[] args){
+  System.out.println(2+3);
+ }
+}`},
+
+{q:"Check even or odd (4)",h:"Use modulus %",o:"Even",
+a:`class Main{
+ public static void main(String[] args){
+  int n=4;
+  if(n%2==0) System.out.println("Even");
+  else System.out.println("Odd");
+ }
+}`},
+
+{q:"Factorial of 4",h:"Multiply in loop",o:"24",
+a:`class Main{
+ public static void main(String[] args){
+  int f=1;
+  for(int i=1;i<=4;i++) f*=i;
+  System.out.println(f);
+ }
+}`},
+
+{q:"Array example (first element)",h:"Use array index",o:"1",
+a:`class Main{
+ public static void main(String[] args){
+  int[] a={1,2,3};
+  System.out.println(a[0]);
+ }
+}`},
+
+{q:"While loop 1 to 3",h:"Use while loop",o:"1 2 3",
+a:`class Main{
+ public static void main(String[] args){
+  int i=1;
+  while(i<=3){
+   System.out.print(i+" ");
+   i++;
+  }
+ }
+}`},
+
+{q:"Method add (2,3)",h:"Return value",o:"5",
+a:`class Main{
+ static int add(int a,int b){ return a+b; }
+ public static void main(String[] args){
+  System.out.println(add(2,3));
+ }
+}`},
+
+{q:"Class & object example",h:"Create object",o:"Hello",
+a:`class Test{
+ void show(){ System.out.println("Hello"); }
+}
+class Main{
+ public static void main(String[] args){
+  new Test().show();
+ }
+}`},
+
+{q:"ArrayList example",h:"Use ArrayList",o:"1",
+a:`import java.util.*;
+class Main{
+ public static void main(String[] args){
+  ArrayList<Integer> list=new ArrayList<>();
+  list.add(1);
+  list.add(2);
+  System.out.println(list.get(0));
+ }
+}`}
+];
+
+/* ================= ENGINE ================= */
+
+let current=0,score=0,usedHint=false,usedAnswer=false;
+let time=300,timer;
+
+// DOM Elements
+const levels=document.getElementById("levels");
+const levelSelector=document.getElementById("levelSelector");
+const gameUI=document.getElementById("gameUI");
+const starCount=document.getElementById("starCount");
+const level=document.getElementById("level");
+const bossTag=document.getElementById("bossTag");
+const question=document.getElementById("question");
+const outputBox=document.getElementById("outputBox");
+const hintBox=document.getElementById("hintBox");
+const answerBox=document.getElementById("answerBox");
+const feedback=document.getElementById("feedback");
+const prev=document.getElementById("prev");
+const next=document.getElementById("next");
+const skip=document.getElementById("skip");
+const hint=document.getElementById("hint");
+const show=document.getElementById("show");
+const run=document.getElementById("run");
+const submit=document.getElementById("submit");
+const timeBox=document.getElementById("time");
+const scoreBox=document.getElementById("score");
+
+function fullScreen(){
+ if(document.documentElement.requestFullscreen)
+  document.documentElement.requestFullscreen();
+}
+
+// ==== SUBMIT FINAL SCORE TO BACKEND LEADERBOARD ====
+function submitFinalScore() {
+  if (!score || score <= 0) return;
+
+  fetch("/api/submit-score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      lang: "Java",
+      score: score
+    })
+  }).catch(()=>{});
+}
+
+function renderLevels(){
+ levels.innerHTML="";
+ for(let i=1;i<=10;i++){
+  let b=document.createElement("button");
+  b.textContent=i;
+  b.className="levelBtn";
+  if(score>=STAR_REQ[i]){
+   b.classList.add("open");
+   b.onclick=()=>{
+    current=i-1;
+    levelSelector.style.display="none";
+    gameUI.style.display="block";
+    fullScreen();
+    load();
+   };
+  }else{
+   b.classList.add("locked");
+   b.onclick=()=>alert("🔒 Need "+STAR_REQ[i]+" stars");
+  }
+  levels.appendChild(b);
+ }
+ starCount.textContent=score;
+}
+
+function startTimer(){
+ clearInterval(timer);
+ let boss=(current+1===5||current+1===10);
+ time=boss?180:300;
+ timeBox.textContent=time;
+ timer=setInterval(()=>{
+  time--;
+  timeBox.textContent=time;
+  if(time<=0){clearInterval(timer);submit.click();}
+ },1000);
+}
+
+function load(){
+ usedHint=false; usedAnswer=false;
+ next.disabled=true;
+ question.textContent="Q"+(current+1)+": "+QUESTIONS[current].q;
+ level.textContent=current+1;
+ bossTag.innerHTML=(current+1===5||current+1===10)?'<span class="boss"> 👹 BOSS</span>':"";
+ feedback.textContent="";
+ outputBox.classList.remove("show");
+ hintBox.classList.remove("show");
+ answerBox.classList.remove("show");
+ startTimer();
+}
+
+run.onclick=()=>{
+ outputBox.textContent="OUTPUT:\n"+QUESTIONS[current].o;
+ outputBox.classList.add("show");
+};
+
+submit.onclick=()=>{
+ clearInterval(timer);
+ let base=(current+1===5||current+1===10)?30:10;
+ if(usedAnswer) base=0;
+ else if(usedHint) base=Math.max(base-5,0);
+ score+=base;
+ scoreBox.textContent=score;
+ feedback.textContent="⭐ +" + base;
+ renderLevels();
+ next.disabled=false;
+};
+
+prev.onclick=()=>{ if(current>0){current--;load();} };
+next.onclick=()=>{ if(current<QUESTIONS.length-1){current++;load();} };
+skip.onclick=()=>{ if(current<QUESTIONS.length-1){current++;load();} };
+hint.onclick=()=>{ usedHint=true; hintBox.textContent=QUESTIONS[current].h; hintBox.classList.add("show"); };
+show.onclick=()=>{ usedAnswer=true; answerBox.textContent=QUESTIONS[current].a; answerBox.classList.add("show"); };
+
+document.addEventListener("fullscreenchange",()=>{
+ if(!document.fullscreenElement){
+  clearInterval(timer);
+  gameUI.style.display="none";
+  levelSelector.style.display="block";
+  // When user exits fullscreen (game session end), push score.
+  submitFinalScore();
+  current=0;
+ }
+});
+
+renderLevels();
+
+// When leaving the quiz page (closing tab / back navigation), send last score too.
+window.addEventListener("beforeunload", () => {
+  try { submitFinalScore(); } catch(e) {}
+});
+</script>
+
+<!-- 🔊 GLOBAL MUSIC -->
+{% include 'music.html' %}
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!-- GLOBAL BACKGROUND MUSIC -->
+<audio id="globalBgMusic" loop playsinline preload="auto">
+  <source src="{{ url_for('static', filename='music/Mission-Impossible.mp3') }}" type="audio/mpeg">
+</audio>
+
+<script>
+(function() {
+  // --- KEYS ---
+  const MUSIC_KEY = "escapex_music";
+  const THEME_KEY = "escapex_theme";
+  const HAPTIC_KEY = "escapex_haptic";
+  const audio = document.getElementById("globalBgMusic");
+
+  // --- 1. GLOBAL THEME APPLIER ---
+  function applyTheme() {
+      const theme = localStorage.getItem(THEME_KEY) || "dark";
+      // Apply to body immediately
+      document.body.setAttribute("data-theme", theme);
+  }
+
+  // --- 2. GLOBAL MUSIC APPLIER ---
+  // We attach this to 'window' so options.html can force an update when clicked
+  window.updateGlobalMusic = function() {
+      const shouldPlay = localStorage.getItem(MUSIC_KEY) === "true";
+      
+      if (shouldPlay) {
+          // Only play if not already playing
+          if (audio.paused) {
+              const playPromise = audio.play();
+              if (playPromise !== undefined) {
+                  playPromise.catch(error => {
+                      console.log("Autoplay prevented by browser:", error);
+                  });
+              }
+          }
+      } else {
+          audio.pause();
+      }
+  };
+
+  // --- 3. GLOBAL HAPTICS (VIBRATION) ---
+  // Enable by default if the key is missing.
+  function hapticsEnabled() {
+      const v = localStorage.getItem(HAPTIC_KEY);
+      return v === null ? true : v === "true";
+  }
+
+  window.triggerHaptic = function(ms) {
+      try {
+          if (!hapticsEnabled()) return;
+          if (!("vibrate" in navigator)) return;
+          navigator.vibrate(Math.max(1, Math.min(ms || 12, 40)));
+      } catch (e) {
+          // ignore
+      }
+  };
+
+  // Light haptic on taps/clicks for interactive elements (buttons/links).
+  // Use capture so it fires even if handlers stop propagation.
+  document.addEventListener("click", function(e) {
+      const t = e.target;
+      if (!t) return;
+
+      // Avoid buzzing while typing/dragging on inputs.
+      const tag = (t.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select") return;
+
+      // Only vibrate for common interactive elements.
+      const interactive = t.closest && t.closest("button, a, [role='button'], .btn, .start-btn");
+      if (!interactive) return;
+
+      window.triggerHaptic(12);
+  }, true);
+
+  // --- INITIALIZE ON LOAD ---
+  applyTheme();         // Fixes Theme on Home/Levels
+  window.updateGlobalMusic();  // Fixes Music on Home/Levels
+
+})();
+</script>

@@ -1,0 +1,152 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', Arial, sans-serif;
+  }
+  
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  
+    /* Game-style gradient background */
+    background:
+      radial-gradient(circle at top, rgb(255, 0, 0), transparent 55%),
+      radial-gradient(circle at bottom, rgba(255, 242, 0, 0.904), transparent 55%),
+      linear-gradient(135deg, #050816, #060b2b 40%, #0c1029 70%, #020617);
+  }
+  
+  /* LIGHT THEME */
+  body.light-theme {
+    color: #020617;
+    background: #f8fafc;
+  }
+  
+  body.light-theme .menu-container {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+  }
+  
+  body.light-theme .game-title {
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    color: #020617;
+  }
+  
+  body.light-theme .btn {
+    background: linear-gradient(120deg, #3b82f6, #8b5cf6);
+    box-shadow:
+      0 0 12px rgba(59, 130, 246, 0.6),
+      0 0 30px rgba(139, 92, 246, 0.5);
+  }
+  
+  body.light-theme .btn:hover {
+    box-shadow:
+      0 0 18px rgba(59, 130, 246, 0.8),
+      0 0 40px rgba(139, 92, 246, 0.7);
+  }
+  
+  body.light-theme .btn:active {
+    box-shadow:
+      0 0 10px rgba(59, 130, 246, 0.5),
+      0 0 24px rgba(139, 92, 246, 0.5);
+  }
+  
+  .menu-container {
+    text-align: center;
+    padding: 30px 40px;
+    border-radius: 20px;
+    background: rgba(10, 10, 30, 0.8);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+  }
+  
+  .game-title {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+  }
+  
+  .menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  
+  /* Neon button design */
+  .btn {
+    position: relative;
+    padding: 12px 60px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #0f172a;
+    background: linear-gradient(120deg, #ff0202, #fffb01);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    overflow: hidden;
+  
+    box-shadow:
+      0 0 12px rgba(255, 0, 0, 0.8),
+      0 0 30px rgba(253, 219, 2, 0.7);
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      filter 0.18s ease,
+      background 0.18s ease;
+  }
+  
+  /* Glow ring */
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    border: 2px solid rgb(0, 0, 0);
+    pointer-events: none;
+  }
+  
+  /* Hover light sweep */
+  .btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(248, 250, 252, 0.9),
+      transparent
+    );
+    transform: skewX(-20deg);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.1);
+    box-shadow:
+      0 0 18px rgb(255, 0, 0),
+      0 0 40px rgb(238, 255, 0);
+  }
+  
+  .btn:hover::after {
+    opacity: 1;
+    transform: translateX(220%) skewX(-20deg);
+  }
+  
+  .btn:active {
+    transform: translateY(0) scale(0.99);
+    box-shadow:
+      0 0 10px rgba(255, 0, 0, 0.7),
+      0 0 24px rgba(242, 255, 2, 0.7);
+  }
+  

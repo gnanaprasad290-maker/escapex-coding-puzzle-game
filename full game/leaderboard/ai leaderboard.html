@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>AI Leaderboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1f2933, #020617);
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .leaderboard-container {
+            width: 100%;
+            max-width: 960px;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 18px;
+            box-shadow:
+                0 25px 50px -12px rgba(15, 23, 42, 0.8),
+                0 0 0 1px rgba(148, 163, 184, 0.15);
+            padding: 24px 28px 28px;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 16px;
+        }
+
+        .leaderboard-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .leaderboard-title h1 {
+            font-size: 1.6rem;
+            letter-spacing: 0.03em;
+        }
+
+        .leaderboard-title span {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            background: linear-gradient(120deg, #22c55e, #22d3ee);
+            color: #020617;
+            font-weight: 600;
+            box-shadow: 0 0 18px rgba(34, 211, 238, 0.65);
+            white-space: nowrap;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .leaderboard-table thead {
+            background: linear-gradient(120deg, rgba(56, 189, 248, 0.12), rgba(34, 197, 94, 0.12));
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-table th {
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .leaderboard-table tbody tr {
+            border-bottom: 1px solid rgba(55, 65, 81, 0.7);
+            transition: background 160ms ease, transform 160ms ease;
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: rgba(15, 23, 42, 0.9);
+            transform: translateY(-1px);
+        }
+
+        .rank {
+            font-weight: 700;
+            width: 40px;
+        }
+
+        .player-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 20%, #facc15, #f97316 45%, #be123c 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #020617;
+            box-shadow: 0 0 0 2px rgba(15, 23, 42, 1);
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .player-tag {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .score {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+        }
+
+        .score.positive {
+            color: #22c55e;
+        }
+
+        .score.neutral {
+            color: #e5e7eb;
+        }
+
+        .score.negative {
+            color: #fb7185;
+        }
+
+        .trend-up {
+            color: #22c55e;
+            font-size: 0.8rem;
+        }
+
+        .trend-down {
+            color: #fb7185;
+            font-size: 0.8rem;
+        }
+
+        .trend-stable {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        .footer-row {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #6b7280;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(75, 85, 99, 0.9);
+        }
+
+        /* Cyberpunk input row */
+        .control-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 12px;
+            margin-top: 4px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+        }
+
+        .field input {
+            background: #020617;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            padding: 6px 9px;
+            color: #e5e7eb;
+            font-size: 0.9rem;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #22d3ee;
+            box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.7);
+        }
+
+        .btn-add {
+            align-self: flex-end;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: linear-gradient(120deg, #22d3ee, #a855f7);
+            color: #020617;
+            box-shadow:
+                0 0 16px rgba(168, 85, 247, 0.7),
+                0 0 0 1px rgba(15, 23, 42, 1);
+        }
+
+        .btn-add:hover {
+            filter: brightness(1.08);
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .row-highlight {
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        @media (max-width: 720px) {
+            .leaderboard-container {
+                padding: 18px 16px 20px;
+            }
+
+            .leaderboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .leaderboard-table th:nth-child(5),
+            .leaderboard-table td:nth-child(5),
+            .leaderboard-table th:nth-child(6),
+            .leaderboard-table td:nth-child(6) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="leaderboard-container">
+        <div class="leaderboard-header">
+            <div class="leaderboard-title">
+                <h1>AI Leaderboard</h1>
+                <span>Top performing AI players by score</span>
+            </div>
+            <div class="badge">Season 01 · Live</div>
+        </div>
+
+        <div class="control-row">
+            <div class="field">
+                <label for="playerName">Player</label>
+                <input id="playerName" type="text" placeholder="Enter player name" />
+            </div>
+            <div class="field">
+                <label for="scoreBox">Score</label>
+                <input id="scoreBox" type="number" placeholder="0" />
+            </div>
+            <button class="btn-add" id="addScoreBtn">Add / Update</button>
+        </div>
+
+        <p class="hint">
+            Scores are ordered using comparison operators
+            <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code> and <code>==</code>
+            from highest to lowest.
+        </p>
+
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>AI Agent</th>
+                    <th>Mode</th>
+                    <th>Matches</th>
+                    <th>Win Rate</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+            </tbody>
+        </table>
+
+        <div class="footer-row">
+            <span>Dynamic local leaderboard</span>
+            <span class="pill">Highest score at the top</span>
+        </div>
+    </div>
+
+    <!-- GLOBAL BACKGROUND MUSIC (static page version) -->
+    <audio id="globalBgMusic" loop playsinline preload="auto">
+        <source src="/static/music/Mission-Impossible.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+    (function() {
+        const MUSIC_KEY = "escapex_music";
+        const THEME_KEY = "escapex_theme";
+        const HAPTIC_KEY = "escapex_haptic";
+        const audio = document.getElementById("globalBgMusic");
+
+        function applyTheme() {
+            const theme = localStorage.getItem(THEME_KEY) || "dark";
+            document.body.setAttribute("data-theme", theme);
+        }
+
+        window.updateGlobalMusic = function() {
+            const shouldPlay = localStorage.getItem(MUSIC_KEY) === "true";
+            if (!audio) return;
+            if (shouldPlay) {
+                if (audio.paused) audio.play().catch(()=>{});
+            } else {
+                audio.pause();
+            }
+        };
+
+        function hapticsEnabled() {
+            const v = localStorage.getItem(HAPTIC_KEY);
+            return v === null ? true : v === "true";
+        }
+
+        window.triggerHaptic = function(ms) {
+            try {
+                if (!hapticsEnabled()) return;
+                if (!("vibrate" in navigator)) return;
+                navigator.vibrate(Math.max(1, Math.min(ms || 12, 40)));
+            } catch (e) {}
+        };
+
+        document.addEventListener("click", function(e) {
+            const t = e.target;
+            if (!t) return;
+            const tag = (t.tagName || "").toLowerCase();
+            if (tag === "input" || tag === "textarea" || tag === "select") return;
+            const interactive = t.closest && t.closest("button, a, [role='button'], .btn, .start-btn");
+            if (!interactive) return;
+            window.triggerHaptic(12);
+        }, true);
+
+        applyTheme();
+        window.updateGlobalMusic();
+    })();
+    </script>
+
+    <script>
+        // Simple in-memory score list
+        const scores = [
+            { name: "Alpha Nova", score: 2340 },
+            { name: "Spectre Core", score: 2218 },
+            { name: "Neon Shard", score: 2094 },
+            { name: "Orion Grid", score: 1871 },
+            { name: "Lattice Echo", score: 1630 },
+        ];
+
+        const bodyEl = document.getElementById("leaderboard-body");
+        const nameInput = document.getElementById("playerName");
+        const scoreInput = document.getElementById("scoreBox");
+        const addBtn = document.getElementById("addScoreBtn");
+
+        function sortScores() {
+            // Use explicit comparison operators: <, >, <=, >=, ==
+            scores.sort((a, b) => {
+                if (a.score > b.score) { // >  higher score should come first
+                    return -1;
+                }
+                if (a.score < b.score) { // <  lower score should come later
+                    return 1;
+                }
+                // If scores are equal (==), fall back to name to keep order stable
+                if (a.score == b.score) {
+                    if (a.name.toLowerCase() <= b.name.toLowerCase()) { // <=
+                        return -1;
+                    } else {
+                        return 1; // >=
+                    }
+                }
+                return 0;
+            });
+        }
+
+        function render() {
+            bodyEl.innerHTML = "";
+            scores.forEach((row, index) => {
+                const tr = document.createElement("tr");
+                const rankCell = document.createElement("td");
+                rankCell.className = "rank";
+                rankCell.textContent = index + 1;
+
+                const agentCell = document.createElement("td");
+                const agentWrapper = document.createElement("div");
+                agentWrapper.className = "player-cell";
+
+                const avatar = document.createElement("div");
+                avatar.className = "avatar";
+                avatar.textContent = (row.name || "?").slice(0, 2).toUpperCase();
+
+                const meta = document.createElement("div");
+                const nameEl = document.createElement("div");
+                nameEl.className = "player-name";
+                nameEl.textContent = row.name;
+                const tagEl = document.createElement("div");
+                tagEl.className = "player-tag";
+                tagEl.textContent = "vs AI";
+
+                meta.appendChild(nameEl);
+                meta.appendChild(tagEl);
+                agentWrapper.appendChild(avatar);
+                agentWrapper.appendChild(meta);
+                agentCell.appendChild(agentWrapper);
+
+                const modeCell = document.createElement("td");
+                modeCell.textContent = "Cyber";
+
+                const matchesCell = document.createElement("td");
+                matchesCell.textContent = "—";
+
+                const winRateCell = document.createElement("td");
+                winRateCell.className = "score neutral";
+                winRateCell.textContent = "—";
+
+                const scoreCell = document.createElement("td");
+                scoreCell.className = "score positive";
+                scoreCell.textContent = row.score;
+
+                tr.appendChild(rankCell);
+                tr.appendChild(agentCell);
+                tr.appendChild(modeCell);
+                tr.appendChild(matchesCell);
+                tr.appendChild(winRateCell);
+                tr.appendChild(scoreCell);
+
+                bodyEl.appendChild(tr);
+            });
+        }
+
+        function addOrUpdateScore() {
+            const name = (nameInput.value || "").trim();
+            const rawScore = scoreInput.value;
+            const parsed = parseInt(rawScore, 10);
+
+            if (!name || isNaN(parsed)) {
+                return;
+            }
+
+            const newScore = parsed;
+
+            // See if player already exists
+            let existing = null;
+            for (let i = 0; i < scores.length; i++) {
+                if (scores[i].name.toLowerCase() === name.toLowerCase()) {
+                    existing = scores[i];
+                    break;
+                }
+            }
+
+            if (existing) {
+                // Only update if the new score is >= old score
+                if (newScore >= existing.score) {
+                    existing.score = newScore;
+                }
+            } else {
+                scores.push({ name, score: newScore });
+            }
+
+            sortScores();
+            render();
+
+            nameInput.value = "";
+            scoreInput.value = "";
+        }
+
+        addBtn.addEventListener("click", addOrUpdateScore);
+
+        // Initial render
+        sortScores();
+        render();
+    </script>
+</body>
+</html>

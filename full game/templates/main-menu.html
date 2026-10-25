@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EscapeX</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#f9fafb;
+  background:
+    linear-gradient(rgba(5,8,22,0.85),rgba(5,8,22,0.9)),
+    url("/static/image/il_fullxfull.6801199409_drw4.jpg")
+    center/cover no-repeat fixed;
+}
+
+body[data-theme="light"]{
+  color:#020617;
+  background:
+    radial-gradient(circle at top, rgba(147,51,234,0.35), rgba(59,130,246,0.25)),
+    linear-gradient(rgba(248,250,252,0.82),rgba(226,232,240,0.9)),
+    url("/static/image/il_fullxfull.6801199409_drw4.jpg")
+    center/cover no-repeat fixed;
+}
+
+.menu-container{
+  background:rgba(15,23,42,0.96);
+  padding:32px 40px 36px;
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(15,23,42,0.9);
+  border:1px solid rgba(148,163,184,0.28);
+  width:100%;
+  max-width:460px;
+}
+
+body[data-theme="light"] .menu-container{
+  background:linear-gradient(145deg,rgba(255,255,255,0.98),rgba(250,245,255,0.96));
+  box-shadow:
+    0 18px 40px rgba(15,23,42,0.35),
+    0 0 24px rgba(168,85,247,0.55);
+  border-color:rgba(192,132,252,0.9);
+}
+
+.menu-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.game-title{
+  font-size:2.2rem;
+  letter-spacing:4px;
+  color:#e5e7eb;
+}
+
+body[data-theme="light"] .game-title{
+  color:#4c1d95;
+}
+
+.theme-toggle{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:0.75rem;
+  color:#9ca3af;
+}
+
+.theme-toggle button{
+  border:none;
+  border-radius:999px;
+  padding:5px 10px;
+  cursor:pointer;
+  font-size:0.7rem;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  background:#020617;
+  color:#e5e7eb;
+}
+
+body[data-theme="light"] .theme-toggle button{
+  background:#e5e7eb;
+  color:#020617;
+}
+
+.menu-subtitle{
+  margin-bottom:22px;
+  font-size:0.9rem;
+  color:#9ca3af;
+}
+
+body[data-theme="light"] .menu-subtitle{
+  color:#6b21a8;
+}
+
+.menu-buttons{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.btn{
+  padding:14px 70px;
+  font-size:1rem;
+  letter-spacing:2px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  color:#020617;
+  background:linear-gradient(120deg,#22d3ee,#a855f7);
+  box-shadow:0 10px 22px rgba(15,23,42,0.6);
+}
+
+body[data-theme="light"] .btn{
+  color:#020617;
+  box-shadow:
+    0 12px 26px rgba(79,70,229,0.55),
+    0 0 18px rgba(192,132,252,0.85);
+}
+
+.btn:hover{transform:scale(1.05);}
+</style>
+</head>
+
+<body>
+
+<div class="menu-container">
+  <div class="menu-header">
+    <h1 class="game-title">ESCAPEX</h1>
+
+    <!-- 🌙 THEME TOGGLE -->
+    <div class="theme-toggle">
+      <button onclick="setTheme('dark')">Dark</button>
+      <button onclick="setTheme('light')">Light</button>
+    </div>
+  </div>
+
+  <p class="menu-subtitle">Welcome, <b>{{ username }}</b> 👋</p>
+
+  <div class="menu-buttons">
+    <button class="btn" onclick="location.href='/levels'">Play</button>
+    <button class="btn" onclick="location.href='/option'">Options</button>
+    <button class="btn" onclick="location.href='/exit'">Quit</button>
+  </div>
+</div>
+
+<!-- 🔊 GLOBAL MUSIC -->
+{% include 'music.html' %}
+
+<script>
+  const savedTheme = localStorage.getItem("escapex_theme") || "dark";
+  document.body.setAttribute("data-theme", savedTheme);
+
+  function setTheme(theme){
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem("escapex_theme", theme);
+  }
+</script>
+
+</body>
+</html>

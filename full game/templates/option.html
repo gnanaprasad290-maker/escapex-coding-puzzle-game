@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EscapeX — Settings</title>
+
+<style>
+:root{ --neon:#0ff; --bg:#blue; --panel:#001a22cc; --text-color:#0ff; }
+
+html,body{height:100%;}
+
+body{
+margin:0;
+display:flex;
+align-items:center;
+justify-content:center;
+background:radial-gradient(circle,var(--bg),#000);
+font-family:Arial,system-ui;
+color:var(--text-color);
+transition:background .3s,color .3s;
+}
+
+.settings-container{
+width:420px;
+padding:28px;
+background:var(--panel);
+border-radius:12px;
+border:1px solid rgba(0,255,255,0.2);
+backdrop-filter:blur(10px);
+}
+
+.settings-title{
+text-align:center;
+margin-bottom:20px;
+color:var(--neon);
+}
+
+.option-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 0;
+border-bottom:1px solid rgba(0,255,255,0.1);
+}
+
+.toggle-btn{
+padding:8px 14px;
+cursor:pointer;
+border-radius:6px;
+border:1px solid var(--neon);
+background:rgba(0,0,0,0.3);
+color:var(--text-color);
+min-width:100px;
+}
+
+.toggle-btn.active{
+background:var(--neon);
+color:#000;
+font-weight:bold;
+}
+
+.back-btn{
+margin-top:25px;
+width:100%;
+padding:12px;
+cursor:pointer;
+background:transparent;
+border:1px solid var(--neon);
+color:var(--text-color);
+border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="settings-container">
+
+<h2 class="settings-title">⚙️ Settings</h2>
+
+<!-- Sound -->
+<div class="option-row">
+<span>Sound</span>
+<button id="soundToggle" class="toggle-btn">🔊 Off</button>
+</div>
+
+<!-- Music -->
+<div class="option-row">
+<span>Music</span>
+<button id="musicToggle" class="toggle-btn">🎵 Off</button>
+</div>
+
+<button class="back-btn" onclick="window.location.href='/main-menu'">
+← Back to Main Menu
+</button>
+
+</div>
+
+<!-- CLICK SOUND -->
+<audio id="clickSound">
+<source src="/static/music/Thani-Oruvan.mp3" type="audio/mpeg">
+</audio>
+
+<!-- GLOBAL MUSIC -->
+<audio id="globalBgMusic" loop playsinline preload="auto">
+<source src="/static/music/Mission-Impossible.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+
+const KEYS={
+music:"escapex_music",
+sound:"escapex_sound"
+};
+
+const els={
+music:document.getElementById("musicToggle"),
+sound:document.getElementById("soundToggle"),
+clickFx:document.getElementById("clickSound"),
+audio:document.getElementById("globalBgMusic")
+};
+
+function updateUI(){
+
+const isMusic=localStorage.getItem(KEYS.music)==="true";
+const isSound=localStorage.getItem(KEYS.sound)==="true";
+
+els.music.textContent="🎵 "+(isMusic?"On":"Off");
+els.sound.textContent="🔊 "+(isSound?"On":"Off");
+
+els.music.classList.toggle("active",isMusic);
+els.sound.classList.toggle("active",isSound);
+
+if(isMusic){
+els.audio.play().catch(()=>{});
+}else{
+els.audio.pause();
+}
+
+}
+
+els.music.onclick=()=>{
+const current=localStorage.getItem(KEYS.music)==="true";
+localStorage.setItem(KEYS.music,!current);
+updateUI();
+};
+
+els.sound.onclick=()=>{
+const current=localStorage.getItem(KEYS.sound)==="true";
+localStorage.setItem(KEYS.sound,!current);
+updateUI();
+
+if(!current && els.clickFx){
+els.clickFx.currentTime=0;
+els.clickFx.play().catch(()=>{});
+}
+};
+
+updateUI();
+
+});
+</script>
+
+</body>
+</html>
